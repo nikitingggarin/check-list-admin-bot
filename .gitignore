@@ -101,7 +101,6 @@ $GOPATH/pkg/mod/
 # Сгенерированные файлы
 /telegram-bot
 /checklist-bot
-bot
 
 # Системные файлы Windows
 [Pp]ublish/
