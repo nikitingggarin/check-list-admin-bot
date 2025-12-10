@@ -1,0 +1,6 @@
+cd C:\telegramm_bots_new\check-list-admin-bot-new
+Get-ChildItem -Recurse -Filter "*.go" | ForEach-Object { 
+    "=== $($_.FullName) ==="
+    Get-Content $_.FullName -Encoding UTF8
+    ""
+} | Out-File -FilePath .\all_code_utf8.txt -Encoding UTF8
