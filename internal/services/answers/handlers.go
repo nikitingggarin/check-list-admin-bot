@@ -81,8 +81,8 @@ func (s *AnswersService) HandleCorrectAnswersInput(userID int64, update tgbotapi
 			return
 		}
 
-		if category == types.CategoryMultipleChoice && len(indices) < 1 {
-			s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Для множественного выбора нужен хотя бы 1 правильный ответ")
+		if category == types.CategoryMultipleChoice && len(indices) < 2 {
+			s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Для множественного выбора нужно минимум 2 правильных ответа")
 			return
 		}
 	}
