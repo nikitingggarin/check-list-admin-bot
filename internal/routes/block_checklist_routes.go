@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"log"
 	"strings"
 
@@ -28,7 +27,7 @@ func NewBlockChecklistRoutes(checklistSvc *block_checklist.BlockChecklistService
 }
 
 // Route маршрутизирует сообщение в контексте чек-листов с блоками
-func (r *BlockChecklistRoutes) Route(ctx context.Context, userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
+func (r *BlockChecklistRoutes) Route(userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
 	currentScreen := userState.GetCurrentScreen()
 
 	log.Printf("[BlockChecklistRoutes] 👤 UserID: %d | 💬 Текст: %s | Экран: %s", userID, text, currentScreen)

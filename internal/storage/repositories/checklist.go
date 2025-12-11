@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"telegram-bot/internal/storage/models"
@@ -20,7 +19,7 @@ func NewChecklistRepository(client *supabase.Client) *ChecklistRepository {
 }
 
 // Create создает новый чек-лист
-func (r *ChecklistRepository) Create(ctx context.Context, checklist *models.Checklist) (*models.Checklist, error) {
+func (r *ChecklistRepository) Create(checklist *models.Checklist) (*models.Checklist, error) {
 	var result []models.Checklist
 
 	err := r.client.DB.From("checklists").
@@ -39,7 +38,7 @@ func (r *ChecklistRepository) Create(ctx context.Context, checklist *models.Chec
 }
 
 // GetByID возвращает чек-лист по ID
-func (r *ChecklistRepository) GetByID(ctx context.Context, id int64) (*models.Checklist, error) {
+func (r *ChecklistRepository) GetByID(id int64) (*models.Checklist, error) {
 	var checklists []models.Checklist
 
 	err := r.client.DB.From("checklists").
@@ -59,7 +58,7 @@ func (r *ChecklistRepository) GetByID(ctx context.Context, id int64) (*models.Ch
 }
 
 // GetByUserID возвращает чек-листы пользователя
-func (r *ChecklistRepository) GetByUserID(ctx context.Context, userID int64, status *models.ChecklistStatus) ([]models.Checklist, error) {
+func (r *ChecklistRepository) GetByUserID(userID int64, status *models.ChecklistStatus) ([]models.Checklist, error) {
 	var checklists []models.Checklist
 
 	query := r.client.DB.From("checklists").
@@ -80,7 +79,7 @@ func (r *ChecklistRepository) GetByUserID(ctx context.Context, userID int64, sta
 }
 
 // UpdateStatus обновляет статус чек-листа
-func (r *ChecklistRepository) UpdateStatus(ctx context.Context, id int64, status models.ChecklistStatus) error {
+func (r *ChecklistRepository) UpdateStatus(id int64, status models.ChecklistStatus) error {
 	data := map[string]interface{}{
 		"status": status,
 	}
@@ -99,7 +98,7 @@ func (r *ChecklistRepository) UpdateStatus(ctx context.Context, id int64, status
 }
 
 // UpdateName обновляет название чек-листа
-func (r *ChecklistRepository) UpdateName(ctx context.Context, id int64, name string) error {
+func (r *ChecklistRepository) UpdateName(id int64, name string) error {
 	data := map[string]interface{}{
 		"name": name,
 	}
@@ -118,7 +117,7 @@ func (r *ChecklistRepository) UpdateName(ctx context.Context, id int64, name str
 }
 
 // Delete удаляет чек-лист по ID (с каскадным удалением)
-func (r *ChecklistRepository) Delete(ctx context.Context, id int64) error {
+func (r *ChecklistRepository) Delete(id int64) error {
 	var result []models.Checklist
 
 	err := r.client.DB.From("checklists").

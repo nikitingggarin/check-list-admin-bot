@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -10,8 +9,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func (s *AuthService) HandleAuthorization(ctx context.Context, userID int64, update tgbotapi.Update, userState *state.UserState) error {
-	dbUser, err := s.userSvc.AuthorizeAdmin(ctx, userID)
+func (s *AuthService) HandleAuthorization(userID int64, update tgbotapi.Update, userState *state.UserState) error {
+	dbUser, err := s.userSvc.AuthorizeAdmin(userID)
 	if err != nil {
 		return fmt.Errorf("❌ Ошибка авторизации: %s", err)
 	}

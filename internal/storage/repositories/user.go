@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"context"
 	"fmt"
 	"telegram-bot/internal/storage/models"
 
@@ -16,7 +15,7 @@ func NewSupabaseAdapter(client *supabase.Client) *SupabaseAdapter {
 	return &SupabaseAdapter{client: client}
 }
 
-func (a *SupabaseAdapter) GetUserByTelegramID(ctx context.Context, telegramID int64) (*models.User, error) {
+func (a *SupabaseAdapter) GetUserByTelegramID(telegramID int64) (*models.User, error) {
 	var users []models.User
 
 	err := a.client.DB.From("users").

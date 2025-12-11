@@ -1,7 +1,6 @@
 package simple_checklist
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -159,7 +158,6 @@ func (r *SimpleChecklistService) HandleSaveDraft(userID int64, update tgbotapi.U
 		return
 	}
 
-	ctx := context.Background()
 	var savedChecklist *models.Checklist
 	var err error
 
@@ -167,7 +165,7 @@ func (r *SimpleChecklistService) HandleSaveDraft(userID int64, update tgbotapi.U
 	if simpleChecklist.ID > 0 {
 		// РЕДАКТИРОВАНИЕ: удаляем старый и создаем новый
 		log.Printf("[SimpleChecklistService] Редактирование чек-листа ID=%d", simpleChecklist.ID)
-		savedChecklist, err = r.checklistSvc.UpdateChecklist(ctx, simpleChecklist.ID, simpleChecklist, userID)
+		savedChecklist, err = r.checklistSvc.UpdateChecklist(simpleChecklist.ID, simpleChecklist, userID)
 		if err != nil {
 			r.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка обновления: "+err.Error())
 			return
@@ -177,7 +175,7 @@ func (r *SimpleChecklistService) HandleSaveDraft(userID int64, update tgbotapi.U
 	} else {
 		// СОЗДАНИЕ: просто создаем новый
 		log.Printf("[SimpleChecklistService] Создание нового чек-листа")
-		savedChecklist, err = r.checklistSvc.SaveSimpleChecklistDraft(ctx, simpleChecklist, userID)
+		savedChecklist, err = r.checklistSvc.SaveSimpleChecklistDraft(simpleChecklist, userID)
 		if err != nil {
 			r.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка сохранения: "+err.Error())
 			return
@@ -223,7 +221,6 @@ func (r *SimpleChecklistService) HandleSavePublish(userID int64, update tgbotapi
 		return
 	}
 
-	ctx := context.Background()
 	var savedChecklist *models.Checklist
 	var err error
 
@@ -231,7 +228,7 @@ func (r *SimpleChecklistService) HandleSavePublish(userID int64, update tgbotapi
 	if simpleChecklist.ID > 0 {
 		// РЕДАКТИРОВАНИЕ: удаляем старый и создаем новый
 		log.Printf("[SimpleChecklistService] Редактирование и публикация чек-листа ID=%d", simpleChecklist.ID)
-		savedChecklist, err = r.checklistSvc.UpdateChecklist(ctx, simpleChecklist.ID, simpleChecklist, userID)
+		savedChecklist, err = r.checklistSvc.UpdateChecklist(simpleChecklist.ID, simpleChecklist, userID)
 		if err != nil {
 			r.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка обновления: "+err.Error())
 			return
@@ -239,7 +236,7 @@ func (r *SimpleChecklistService) HandleSavePublish(userID int64, update tgbotapi
 	} else {
 		// СОЗДАНИЕ: просто создаем новый
 		log.Printf("[SimpleChecklistService] Создание и публикация нового чек-листа")
-		savedChecklist, err = r.checklistSvc.SaveSimpleChecklistDraft(ctx, simpleChecklist, userID)
+		savedChecklist, err = r.checklistSvc.SaveSimpleChecklistDraft(simpleChecklist, userID)
 		if err != nil {
 			r.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка сохранения: "+err.Error())
 			return
@@ -247,7 +244,7 @@ func (r *SimpleChecklistService) HandleSavePublish(userID int64, update tgbotapi
 	}
 
 	// Публикуем чек-лист
-	err = r.checklistSvc.PublishChecklist(ctx, savedChecklist.ID)
+	err = r.checklistSvc.PublishChecklist(savedChecklist.ID)
 	if err != nil {
 		r.screenSvc.SendMessage(update.Message.Chat.ID, "⚠️ Чек-лист сохранен как черновик, но не опубликован: "+err.Error())
 

@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"log"
 
 	"telegram-bot/internal/buttons"
@@ -26,7 +25,7 @@ func NewSimpleChecklistRoutes(simpleChecklistSvc *simple_checklist.SimpleCheckli
 }
 
 // Route маршрутизирует сообщение в контексте простых чек-листов
-func (r *SimpleChecklistRoutes) Route(ctx context.Context, userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
+func (r *SimpleChecklistRoutes) Route(userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
 	currentScreen := userState.GetCurrentScreen()
 
 	log.Printf("[SimpleChecklistRoutes] 👤 UserID: %d | 💬 Текст: %s | Экран: %s", userID, text, currentScreen)

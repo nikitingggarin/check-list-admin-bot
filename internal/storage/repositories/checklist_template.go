@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"context"
 	"fmt"
 	"telegram-bot/internal/storage/models"
 
@@ -19,7 +18,7 @@ func NewChecklistTemplateRepository(client *supabase.Client) *ChecklistTemplateR
 }
 
 // Create создает новую связку шаблона
-func (r *ChecklistTemplateRepository) Create(ctx context.Context, template *models.ChecklistTemplate) (*models.ChecklistTemplate, error) {
+func (r *ChecklistTemplateRepository) Create(template *models.ChecklistTemplate) (*models.ChecklistTemplate, error) {
 	var result []models.ChecklistTemplate
 
 	err := r.client.DB.From("checklist_templates").
@@ -38,7 +37,7 @@ func (r *ChecklistTemplateRepository) Create(ctx context.Context, template *mode
 }
 
 // CreateBatch создает несколько связок шаблонов
-func (r *ChecklistTemplateRepository) CreateBatch(ctx context.Context, templates []models.ChecklistTemplate) ([]models.ChecklistTemplate, error) {
+func (r *ChecklistTemplateRepository) CreateBatch(templates []models.ChecklistTemplate) ([]models.ChecklistTemplate, error) {
 	var result []models.ChecklistTemplate
 
 	if len(templates) == 0 {
@@ -57,7 +56,7 @@ func (r *ChecklistTemplateRepository) CreateBatch(ctx context.Context, templates
 }
 
 // GetByChecklistID возвращает шаблоны по ID чек-листа
-func (r *ChecklistTemplateRepository) GetByChecklistID(ctx context.Context, checklistID int64) ([]models.ChecklistTemplate, error) {
+func (r *ChecklistTemplateRepository) GetByChecklistID(checklistID int64) ([]models.ChecklistTemplate, error) {
 	var templates []models.ChecklistTemplate
 
 	err := r.client.DB.From("checklist_templates").

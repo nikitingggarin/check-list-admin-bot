@@ -1,7 +1,6 @@
 package my_checklists
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -38,15 +37,14 @@ func (s *MyChecklistsService) HandleChecklistNumber(userID int64, update tgbotap
 	checklist := checklists[number-1]
 
 	// Загружаем полные данные чек-листа
-	ctx := context.Background()
-	dbChecklist, blocks, questions, answerOptions, err := s.checklistSvc.GetChecklistByID(ctx, checklist.ID)
+	dbChecklist, blocks, questions, answerOptions, err := s.checklistSvc.GetChecklistByID(checklist.ID)
 	if err != nil {
 		s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка при загрузке чек-листа: "+err.Error())
 		return
 	}
 
 	// ЗАГРУЖАЕМ ШАБЛОНЫ ДЛЯ ГРУППИРОВКИ ВОПРОСОВ ПО БЛОКАМ
-	templates, err := s.checklistSvc.GetTemplatesByChecklistID(ctx, checklist.ID)
+	templates, err := s.checklistSvc.GetTemplatesByChecklistID(checklist.ID)
 	if err != nil {
 		log.Printf("[MyChecklistsService] ⚠️ Не удалось загрузить шаблоны для чек-листа %d: %v", checklist.ID, err)
 		// Продолжаем без шаблонов
@@ -113,8 +111,7 @@ func (s *MyChecklistsService) HandleConfirmDelete(userID int64, update tgbotapi.
 	}
 
 	// Удаляем из базы данных
-	ctx := context.Background()
-	err := s.checklistSvc.DeleteChecklist(ctx, checklist.ID)
+	err := s.checklistSvc.DeleteChecklist(checklist.ID)
 	if err != nil {
 		s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка при удалении: "+err.Error())
 		return
@@ -176,8 +173,7 @@ func (s *MyChecklistsService) HandlePublishChecklist(userID int64, update tgbota
 		return
 	}
 
-	ctx := context.Background()
-	err := s.checklistSvc.PublishChecklist(ctx, checklist.ID)
+	err := s.checklistSvc.PublishChecklist(checklist.ID)
 	if err != nil {
 		s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка при публикации: "+err.Error())
 		return

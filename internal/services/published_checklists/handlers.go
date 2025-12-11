@@ -1,7 +1,6 @@
 package published_checklists
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -14,8 +13,7 @@ import (
 
 // HandlePublishedChecklists показывает опубликованные чек-листы
 func (s *PublishedChecklistsService) HandlePublishedChecklists(userID int64, update tgbotapi.Update, userState *state.UserState) {
-	ctx := context.Background()
-	checklists, err := s.checklistSvc.GetUserPublished(ctx, userID)
+	checklists, err := s.checklistSvc.GetUserPublished(userID)
 	if err != nil {
 		s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка при получении опубликованных чек-листов: "+err.Error())
 		return
@@ -40,8 +38,7 @@ func (s *PublishedChecklistsService) HandlePublishedChecklists(userID int64, upd
 
 // HandleUnpublishedChecklists показывает отмененные чек-листы
 func (s *PublishedChecklistsService) HandleUnpublishedChecklists(userID int64, update tgbotapi.Update, userState *state.UserState) {
-	ctx := context.Background()
-	checklists, err := s.checklistSvc.GetUserUnpublished(ctx, userID)
+	checklists, err := s.checklistSvc.GetUserUnpublished(userID)
 	if err != nil {
 		s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка при получении отмененных чек-листов: "+err.Error())
 		return
@@ -91,15 +88,14 @@ func (s *PublishedChecklistsService) HandleChecklistNumber(userID int64, update 
 	checklistType, _ := userState.Data["checklists_type"].(string)
 
 	// Загружаем полные данные чек-листа
-	ctx := context.Background()
-	dbChecklist, blocks, questions, answerOptions, err := s.checklistSvc.GetChecklistByID(ctx, checklist.ID)
+	dbChecklist, blocks, questions, answerOptions, err := s.checklistSvc.GetChecklistByID(checklist.ID)
 	if err != nil {
 		s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка при загрузке чек-листа: "+err.Error())
 		return
 	}
 
 	// ДОБАВЛЕНО: Загружаем шаблоны для группировки вопросов по блокам
-	templates, err := s.checklistSvc.GetTemplatesByChecklistID(ctx, checklist.ID)
+	templates, err := s.checklistSvc.GetTemplatesByChecklistID(checklist.ID)
 	if err != nil {
 		log.Printf("[PublishedChecklistsService] ⚠️ Не удалось загрузить шаблоны для чек-листа %d: %v", checklist.ID, err)
 		// Продолжаем без шаблонов
@@ -138,8 +134,7 @@ func (s *PublishedChecklistsService) HandleUnpublish(userID int64, update tgbota
 		return
 	}
 
-	ctx := context.Background()
-	err := s.checklistSvc.UnpublishChecklist(ctx, checklist.ID)
+	err := s.checklistSvc.UnpublishChecklist(checklist.ID)
 	if err != nil {
 		s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка при снятии с публикации: "+err.Error())
 		return
@@ -166,8 +161,7 @@ func (s *PublishedChecklistsService) HandleRepublish(userID int64, update tgbota
 		return
 	}
 
-	ctx := context.Background()
-	err := s.checklistSvc.RepublishChecklist(ctx, checklist.ID)
+	err := s.checklistSvc.RepublishChecklist(checklist.ID)
 	if err != nil {
 		s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка при возврате в публикацию: "+err.Error())
 		return

@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"context"
 	"fmt"
 	"telegram-bot/internal/storage/models"
 
@@ -19,7 +18,7 @@ func NewQuestionRepository(client *supabase.Client) *QuestionRepository {
 }
 
 // Create создает новый вопрос
-func (r *QuestionRepository) Create(ctx context.Context, question *models.Question) (*models.Question, error) {
+func (r *QuestionRepository) Create(question *models.Question) (*models.Question, error) {
 	var result []models.Question
 
 	err := r.client.DB.From("questions").
@@ -38,7 +37,7 @@ func (r *QuestionRepository) Create(ctx context.Context, question *models.Questi
 }
 
 // CreateBatch создает несколько вопросов
-func (r *QuestionRepository) CreateBatch(ctx context.Context, questions []models.Question) ([]models.Question, error) {
+func (r *QuestionRepository) CreateBatch(questions []models.Question) ([]models.Question, error) {
 	var result []models.Question
 
 	if len(questions) == 0 {
@@ -57,7 +56,7 @@ func (r *QuestionRepository) CreateBatch(ctx context.Context, questions []models
 }
 
 // GetByChecklistID возвращает вопросы по ID чек-листа
-func (r *QuestionRepository) GetByChecklistID(ctx context.Context, checklistID int64) ([]models.Question, error) {
+func (r *QuestionRepository) GetByChecklistID(checklistID int64) ([]models.Question, error) {
 	var questions []models.Question
 
 	err := r.client.DB.From("questions").
@@ -73,7 +72,7 @@ func (r *QuestionRepository) GetByChecklistID(ctx context.Context, checklistID i
 }
 
 // UpdateText обновляет текст вопроса
-func (r *QuestionRepository) UpdateText(ctx context.Context, id int64, text string) error {
+func (r *QuestionRepository) UpdateText(id int64, text string) error {
 	data := map[string]interface{}{
 		"text": text,
 	}
@@ -92,7 +91,7 @@ func (r *QuestionRepository) UpdateText(ctx context.Context, id int64, text stri
 }
 
 // UpdateCategory обновляет тип вопроса
-func (r *QuestionRepository) UpdateCategory(ctx context.Context, id int64, category models.QuestionCategory) error {
+func (r *QuestionRepository) UpdateCategory(id int64, category models.QuestionCategory) error {
 	data := map[string]interface{}{
 		"category": category,
 	}

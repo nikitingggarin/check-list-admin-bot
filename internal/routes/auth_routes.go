@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"log"
 
 	"telegram-bot/internal/buttons"
@@ -24,12 +23,12 @@ func NewAuthRoutes(authSvc *auth.AuthService, screenSvc *screen.ScreenService) *
 	}
 }
 
-func (r *AuthRoutes) Route(ctx context.Context, userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
+func (r *AuthRoutes) Route(userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
 	log.Printf("[AuthRoutes] 👤 UserID: %d | 💬 Текст: %s", userID, text)
 
 	switch text {
 	case buttons.BtnAuth:
-		r.authSvc.HandleAuthorization(ctx, userID, update, userState)
+		r.authSvc.HandleAuthorization(userID, update, userState)
 
 	default:
 		r.screenSvc.SendCurrentScreen(update.Message.Chat.ID, userState)

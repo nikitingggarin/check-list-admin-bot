@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"context"
 	"fmt"
 	"telegram-bot/internal/storage/models"
 
@@ -19,7 +18,7 @@ func NewQuestionBlockRepository(client *supabase.Client) *QuestionBlockRepositor
 }
 
 // Create создает новый блок вопросов
-func (r *QuestionBlockRepository) Create(ctx context.Context, block *models.QuestionBlock) (*models.QuestionBlock, error) {
+func (r *QuestionBlockRepository) Create(block *models.QuestionBlock) (*models.QuestionBlock, error) {
 	var result []models.QuestionBlock
 
 	err := r.client.DB.From("question_blocks").
@@ -38,7 +37,7 @@ func (r *QuestionBlockRepository) Create(ctx context.Context, block *models.Ques
 }
 
 // CreateBatch создает несколько блоков вопросов
-func (r *QuestionBlockRepository) CreateBatch(ctx context.Context, blocks []models.QuestionBlock) ([]models.QuestionBlock, error) {
+func (r *QuestionBlockRepository) CreateBatch(blocks []models.QuestionBlock) ([]models.QuestionBlock, error) {
 	var result []models.QuestionBlock
 
 	if len(blocks) == 0 {
@@ -57,7 +56,7 @@ func (r *QuestionBlockRepository) CreateBatch(ctx context.Context, blocks []mode
 }
 
 // GetByChecklistID возвращает блоки вопросов по ID чек-листа
-func (r *QuestionBlockRepository) GetByChecklistID(ctx context.Context, checklistID int64) ([]models.QuestionBlock, error) {
+func (r *QuestionBlockRepository) GetByChecklistID(checklistID int64) ([]models.QuestionBlock, error) {
 	var blocks []models.QuestionBlock
 
 	err := r.client.DB.From("question_blocks").
@@ -73,7 +72,7 @@ func (r *QuestionBlockRepository) GetByChecklistID(ctx context.Context, checklis
 }
 
 // UpdateName обновляет название блока
-func (r *QuestionBlockRepository) UpdateName(ctx context.Context, id int64, name string) error {
+func (r *QuestionBlockRepository) UpdateName(id int64, name string) error {
 	data := map[string]interface{}{
 		"name": name,
 	}

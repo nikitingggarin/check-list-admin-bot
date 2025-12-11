@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"context"
-
 	"telegram-bot/internal/buttons"
 	"telegram-bot/internal/services/menu"
 	"telegram-bot/internal/services/screen"
@@ -26,7 +24,7 @@ func NewMenuRoutes(menuSvc *menu.MenuService, screenSvc *screen.ScreenService) *
 }
 
 // Route маршрутизирует сообщение в главном меню
-func (r *MenuRoutes) Route(ctx context.Context, userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
+func (r *MenuRoutes) Route(userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
 
 	switch text {
 	case buttons.BtnCreateSimpleChecklist:

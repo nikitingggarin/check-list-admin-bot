@@ -1,7 +1,6 @@
 package my_checklists
 
 import (
-	"context"
 	"log"
 	"telegram-bot/internal/state_manager/state"
 	"telegram-bot/internal/state_manager/types"
@@ -61,8 +60,7 @@ func (s *MyChecklistsService) handleEditBlockChecklist(userID int64, update tgbo
 	}
 
 	// Получаем шаблоны для группировки вопросов по блокам
-	ctx := context.Background()
-	templates, err := s.checklistSvc.GetTemplatesByChecklistID(ctx, checklist.ID)
+	templates, err := s.checklistSvc.GetTemplatesByChecklistID(checklist.ID)
 	if err != nil {
 		s.screenSvc.SendMessage(update.Message.Chat.ID, "❌ Ошибка при загрузке структуры чек-листа: "+err.Error())
 		return
@@ -121,10 +119,9 @@ func (s *MyChecklistsService) handleEditBlockChecklist(userID int64, update tgbo
 
 // refreshChecklistsList обновляет список чек-листов и показывает обновленную клавиатуру
 func (s *MyChecklistsService) refreshChecklistsList(userID int64, update tgbotapi.Update, userState *state.UserState) {
-	ctx := context.Background()
 
 	// Загружаем обновленный список черновиков
-	drafts, err := s.checklistSvc.GetUserDrafts(ctx, userID)
+	drafts, err := s.checklistSvc.GetUserDrafts(userID)
 	if err != nil {
 		s.screenSvc.SendMessage(update.Message.Chat.ID, "⚠️ Чек-лист удален, но не удалось обновить список: "+err.Error())
 		// Все равно возвращаемся к списку
@@ -160,10 +157,9 @@ func (s *MyChecklistsService) refreshChecklistsList(userID int64, update tgbotap
 
 // refreshChecklistsListOnBack обновляет список при возврате из деталей
 func (s *MyChecklistsService) refreshChecklistsListOnBack(userID int64, update tgbotapi.Update, userState *state.UserState) {
-	ctx := context.Background()
 
 	// Загружаем обновленный список черновиков
-	drafts, err := s.checklistSvc.GetUserDrafts(ctx, userID)
+	drafts, err := s.checklistSvc.GetUserDrafts(userID)
 	if err != nil {
 		log.Printf("[MyChecklistsService] Ошибка при обновлении списка: %v", err)
 		// Продолжаем с текущим списком

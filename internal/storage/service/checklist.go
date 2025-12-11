@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"telegram-bot/internal/state_manager/types"
@@ -40,11 +39,11 @@ func NewChecklistService(
 }
 
 // SaveSimpleChecklistDraft сохраняет простой чек-лист в базу данных
-func (s *ChecklistService) SaveSimpleChecklistDraft(ctx context.Context, checklist *types.SimpleCheckList, telegramUserID int64) (*models.Checklist, error) {
+func (s *ChecklistService) SaveSimpleChecklistDraft(checklist *types.SimpleCheckList, telegramUserID int64) (*models.Checklist, error) {
 	log.Printf("[ChecklistService] Сохранение простого чек-листа '%s' для пользователя %d", checklist.Name, telegramUserID)
 
 	// 1. Получаем ID пользователя из базы по telegram_id
-	user, err := s.userRepo.GetUserByTelegramID(ctx, telegramUserID)
+	user, err := s.userRepo.GetUserByTelegramID(telegramUserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
@@ -57,7 +56,7 @@ func (s *ChecklistService) SaveSimpleChecklistDraft(ctx context.Context, checkli
 		CreatedAt: time.Now(),
 	}
 
-	createdChecklist, err := s.checklistRepo.Create(ctx, dbChecklist)
+	createdChecklist, err := s.checklistRepo.Create(dbChecklist)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create checklist: %w", err)
 	}
@@ -74,7 +73,7 @@ func (s *ChecklistService) SaveSimpleChecklistDraft(ctx context.Context, checkli
 			UpdatedAt:   time.Now(),
 		}
 
-		createdQuestion, err := s.questionRepo.Create(ctx, dbQuestion)
+		createdQuestion, err := s.questionRepo.Create(dbQuestion)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create question %d: %w", i+1, err)
 		}
@@ -92,7 +91,7 @@ func (s *ChecklistService) SaveSimpleChecklistDraft(ctx context.Context, checkli
 			}
 
 			if len(answerOptions) > 0 {
-				_, err := s.answerOptionRepo.CreateBatch(ctx, answerOptions)
+				_, err := s.answerOptionRepo.CreateBatch(answerOptions)
 				if err != nil {
 					return nil, fmt.Errorf("failed to create answer options for question %d: %w", i+1, err)
 				}
@@ -106,7 +105,7 @@ func (s *ChecklistService) SaveSimpleChecklistDraft(ctx context.Context, checkli
 			CreatedAt:   time.Now(),
 		}
 
-		_, err = s.templateRepo.Create(ctx, template)
+		_, err = s.templateRepo.Create(template)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create checklist template for question %d: %w", i+1, err)
 		}
@@ -121,11 +120,11 @@ func (s *ChecklistService) SaveSimpleChecklistDraft(ctx context.Context, checkli
 }
 
 // SaveBlockedChecklistDraft сохраняет чек-лист с блоками в базу данных
-func (s *ChecklistService) SaveBlockedChecklistDraft(ctx context.Context, checklist *types.BlockedCheckList, telegramUserID int64) (*models.Checklist, error) {
+func (s *ChecklistService) SaveBlockedChecklistDraft(checklist *types.BlockedCheckList, telegramUserID int64) (*models.Checklist, error) {
 	log.Printf("[ChecklistService] Сохранение чек-листа с блоками '%s' для пользователя %d", checklist.Name, telegramUserID)
 
 	// 1. Получаем ID пользователя из базы по telegram_id
-	user, err := s.userRepo.GetUserByTelegramID(ctx, telegramUserID)
+	user, err := s.userRepo.GetUserByTelegramID(telegramUserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
@@ -138,7 +137,7 @@ func (s *ChecklistService) SaveBlockedChecklistDraft(ctx context.Context, checkl
 		CreatedAt: time.Now(),
 	}
 
-	createdChecklist, err := s.checklistRepo.Create(ctx, dbChecklist)
+	createdChecklist, err := s.checklistRepo.Create(dbChecklist)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create checklist: %w", err)
 	}
@@ -153,7 +152,7 @@ func (s *ChecklistService) SaveBlockedChecklistDraft(ctx context.Context, checkl
 			CreatedAt:   time.Now(),
 		}
 
-		createdBlock, err := s.questionBlockRepo.Create(ctx, dbBlock)
+		createdBlock, err := s.questionBlockRepo.Create(dbBlock)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create block %d: %w", blockIndex+1, err)
 		}
@@ -170,7 +169,7 @@ func (s *ChecklistService) SaveBlockedChecklistDraft(ctx context.Context, checkl
 				UpdatedAt:   time.Now(),
 			}
 
-			createdQuestion, err := s.questionRepo.Create(ctx, dbQuestion)
+			createdQuestion, err := s.questionRepo.Create(dbQuestion)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create question %d in block %d: %w",
 					questionIndex+1, blockIndex+1, err)
@@ -189,7 +188,7 @@ func (s *ChecklistService) SaveBlockedChecklistDraft(ctx context.Context, checkl
 				}
 
 				if len(answerOptions) > 0 {
-					_, err := s.answerOptionRepo.CreateBatch(ctx, answerOptions)
+					_, err := s.answerOptionRepo.CreateBatch(answerOptions)
 					if err != nil {
 						return nil, fmt.Errorf("failed to create answer options for question %d in block %d: %w",
 							questionIndex+1, blockIndex+1, err)
@@ -205,7 +204,7 @@ func (s *ChecklistService) SaveBlockedChecklistDraft(ctx context.Context, checkl
 				CreatedAt:   time.Now(),
 			}
 
-			_, err = s.templateRepo.Create(ctx, template)
+			_, err = s.templateRepo.Create(template)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create checklist template for question %d in block %d: %w",
 					questionIndex+1, blockIndex+1, err)
@@ -229,8 +228,8 @@ func (s *ChecklistService) SaveBlockedChecklistDraft(ctx context.Context, checkl
 }
 
 // PublishChecklist публикует чек-лист
-func (s *ChecklistService) PublishChecklist(ctx context.Context, checklistID int64) error {
-	err := s.checklistRepo.UpdateStatus(ctx, checklistID, models.StatusPublished)
+func (s *ChecklistService) PublishChecklist(checklistID int64) error {
+	err := s.checklistRepo.UpdateStatus(checklistID, models.StatusPublished)
 	if err != nil {
 		return fmt.Errorf("failed to publish checklist: %w", err)
 	}
@@ -240,45 +239,45 @@ func (s *ChecklistService) PublishChecklist(ctx context.Context, checklistID int
 }
 
 // GetUserDrafts возвращает черновики пользователя
-func (s *ChecklistService) GetUserDrafts(ctx context.Context, telegramUserID int64) ([]models.Checklist, error) {
+func (s *ChecklistService) GetUserDrafts(telegramUserID int64) ([]models.Checklist, error) {
 	// Получаем ID пользователя
-	user, err := s.userRepo.GetUserByTelegramID(ctx, telegramUserID)
+	user, err := s.userRepo.GetUserByTelegramID(telegramUserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	status := models.StatusDraft
-	return s.checklistRepo.GetByUserID(ctx, user.ID, &status)
+	return s.checklistRepo.GetByUserID(user.ID, &status)
 }
 
 // GetUserPublished возвращает опубликованные чек-листы пользователя
-func (s *ChecklistService) GetUserPublished(ctx context.Context, telegramUserID int64) ([]models.Checklist, error) {
+func (s *ChecklistService) GetUserPublished(telegramUserID int64) ([]models.Checklist, error) {
 	// Получаем ID пользователя
-	user, err := s.userRepo.GetUserByTelegramID(ctx, telegramUserID)
+	user, err := s.userRepo.GetUserByTelegramID(telegramUserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	status := models.StatusPublished
-	return s.checklistRepo.GetByUserID(ctx, user.ID, &status)
+	return s.checklistRepo.GetByUserID(user.ID, &status)
 }
 
 // GetChecklistByID загружает чек-лист по ID со всеми данными
-func (s *ChecklistService) GetChecklistByID(ctx context.Context, checklistID int64) (*models.Checklist, []models.QuestionBlock, []models.Question, []models.AnswerOption, error) {
+func (s *ChecklistService) GetChecklistByID(checklistID int64) (*models.Checklist, []models.QuestionBlock, []models.Question, []models.AnswerOption, error) {
 	// 1. Получаем чек-лист
-	checklist, err := s.checklistRepo.GetByID(ctx, checklistID)
+	checklist, err := s.checklistRepo.GetByID(checklistID)
 	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("failed to get checklist: %w", err)
 	}
 
 	// 2. Получаем блоки вопросов
-	blocks, err := s.questionBlockRepo.GetByChecklistID(ctx, checklistID)
+	blocks, err := s.questionBlockRepo.GetByChecklistID(checklistID)
 	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("failed to get question blocks: %w", err)
 	}
 
 	// 3. Получаем вопросы
-	questions, err := s.questionRepo.GetByChecklistID(ctx, checklistID)
+	questions, err := s.questionRepo.GetByChecklistID(checklistID)
 	if err != nil {
 		return nil, nil, nil, nil, fmt.Errorf("failed to get questions: %w", err)
 	}
@@ -291,7 +290,7 @@ func (s *ChecklistService) GetChecklistByID(ctx context.Context, checklistID int
 
 	var answerOptions []models.AnswerOption
 	if len(questionIDs) > 0 {
-		answerOptions, err = s.answerOptionRepo.GetByQuestionIDs(ctx, questionIDs)
+		answerOptions, err = s.answerOptionRepo.GetByQuestionIDs(questionIDs)
 		if err != nil {
 			return nil, nil, nil, nil, fmt.Errorf("failed to get answer options: %w", err)
 		}
@@ -301,8 +300,8 @@ func (s *ChecklistService) GetChecklistByID(ctx context.Context, checklistID int
 }
 
 // DeleteChecklist удаляет чек-лист
-func (s *ChecklistService) DeleteChecklist(ctx context.Context, checklistID int64) error {
-	err := s.checklistRepo.Delete(ctx, checklistID)
+func (s *ChecklistService) DeleteChecklist(checklistID int64) error {
+	err := s.checklistRepo.Delete(checklistID)
 	if err != nil {
 		return fmt.Errorf("failed to delete checklist: %w", err)
 	}
@@ -312,16 +311,16 @@ func (s *ChecklistService) DeleteChecklist(ctx context.Context, checklistID int6
 }
 
 // GetTemplatesByChecklistID возвращает шаблоны для чек-листа
-func (s *ChecklistService) GetTemplatesByChecklistID(ctx context.Context, checklistID int64) ([]models.ChecklistTemplate, error) {
-	return s.templateRepo.GetByChecklistID(ctx, checklistID)
+func (s *ChecklistService) GetTemplatesByChecklistID(checklistID int64) ([]models.ChecklistTemplate, error) {
+	return s.templateRepo.GetByChecklistID(checklistID)
 }
 
 // UpdateChecklist обновляет чек-лист (удаляет старый и создает новый)
-func (s *ChecklistService) UpdateChecklist(ctx context.Context, oldChecklistID int64, checklistData types.CheckListData, telegramUserID int64) (*models.Checklist, error) {
+func (s *ChecklistService) UpdateChecklist(oldChecklistID int64, checklistData types.CheckListData, telegramUserID int64) (*models.Checklist, error) {
 	log.Printf("[ChecklistService] Обновление чек-листа ID=%d", oldChecklistID)
 
 	// 1. Удаляем старый чек-лист (каскадно удалятся все дочерние записи)
-	err := s.checklistRepo.Delete(ctx, oldChecklistID)
+	err := s.checklistRepo.Delete(oldChecklistID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to delete old checklist: %w", err)
 	}
@@ -330,29 +329,29 @@ func (s *ChecklistService) UpdateChecklist(ctx context.Context, oldChecklistID i
 	// 2. Создаем новый чек-лист
 	switch checklist := checklistData.(type) {
 	case *types.SimpleCheckList:
-		return s.SaveSimpleChecklistDraft(ctx, checklist, telegramUserID)
+		return s.SaveSimpleChecklistDraft(checklist, telegramUserID)
 	case *types.BlockedCheckList:
-		return s.SaveBlockedChecklistDraft(ctx, checklist, telegramUserID)
+		return s.SaveBlockedChecklistDraft(checklist, telegramUserID)
 	default:
 		return nil, fmt.Errorf("unknown checklist type")
 	}
 }
 
 // GetUserUnpublished возвращает отмененные чек-листы пользователя
-func (s *ChecklistService) GetUserUnpublished(ctx context.Context, telegramUserID int64) ([]models.Checklist, error) {
+func (s *ChecklistService) GetUserUnpublished(telegramUserID int64) ([]models.Checklist, error) {
 	// Получаем ID пользователя
-	user, err := s.userRepo.GetUserByTelegramID(ctx, telegramUserID)
+	user, err := s.userRepo.GetUserByTelegramID(telegramUserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	status := models.StatusUnpublished
-	return s.checklistRepo.GetByUserID(ctx, user.ID, &status)
+	return s.checklistRepo.GetByUserID(user.ID, &status)
 }
 
 // UnpublishChecklist снимает чек-лист с публикации
-func (s *ChecklistService) UnpublishChecklist(ctx context.Context, checklistID int64) error {
-	err := s.checklistRepo.UpdateStatus(ctx, checklistID, models.StatusUnpublished)
+func (s *ChecklistService) UnpublishChecklist(checklistID int64) error {
+	err := s.checklistRepo.UpdateStatus(checklistID, models.StatusUnpublished)
 	if err != nil {
 		return fmt.Errorf("failed to unpublish checklist: %w", err)
 	}
@@ -362,8 +361,8 @@ func (s *ChecklistService) UnpublishChecklist(ctx context.Context, checklistID i
 }
 
 // RepublishChecklist возвращает чек-лист в публикацию
-func (s *ChecklistService) RepublishChecklist(ctx context.Context, checklistID int64) error {
-	err := s.checklistRepo.UpdateStatus(ctx, checklistID, models.StatusPublished)
+func (s *ChecklistService) RepublishChecklist(checklistID int64) error {
+	err := s.checklistRepo.UpdateStatus(checklistID, models.StatusPublished)
 	if err != nil {
 		return fmt.Errorf("failed to republish checklist: %w", err)
 	}

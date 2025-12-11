@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"log"
 
 	"telegram-bot/internal/buttons"
@@ -25,7 +24,7 @@ func NewPublishedChecklistsRoutes(publishedSvc *published_checklists.PublishedCh
 	}
 }
 
-func (r *PublishedChecklistsRoutes) Route(ctx context.Context, userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
+func (r *PublishedChecklistsRoutes) Route(userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
 	log.Printf("[PublishedChecklistsRoutes] 👤 UserID: %d | 💬 Текст: %s | Экран: %s", userID, text, userState.GetCurrentScreen())
 
 	// Проверяем, является ли текст кнопкой с карандашом и номером

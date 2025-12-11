@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"fmt"
 	"log"
 
@@ -15,13 +14,13 @@ import (
 type UpdateHandler struct {
 	stateMgr manager.StateManager
 	router   interface {
-		Route(ctx context.Context, userID int64, update tgbotapi.Update, text string)
+		Route(userID int64, update tgbotapi.Update, text string)
 	}
 }
 
 // NewUpdateHandler создает новый обработчик обновлений
 func NewUpdateHandler(router interface {
-	Route(ctx context.Context, userID int64, update tgbotapi.Update, text string)
+	Route(userID int64, update tgbotapi.Update, text string)
 }, stateMgr manager.StateManager) *UpdateHandler {
 	return &UpdateHandler{
 		stateMgr: stateMgr,
@@ -35,11 +34,10 @@ func (h *UpdateHandler) HandleUpdate(update tgbotapi.Update) {
 	if update.Message == nil {
 		return
 	}
-	ctx := context.Background()
 	userID := update.Message.From.ID
 	text := update.Message.Text
 	// Передаем в роутер
-	h.router.Route(ctx, userID, update, text)
+	h.router.Route(userID, update, text)
 
 	// Получаем и логируем состояние ПОСЛЕ обработки
 	log.Println("\n📊 ТЕКУЩЕЕ СОСТОЯНИЕ:")

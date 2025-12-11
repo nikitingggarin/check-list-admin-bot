@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"fmt"
 	"telegram-bot/internal/storage/models"
 	"telegram-bot/internal/storage/repositories"
@@ -15,8 +14,8 @@ func NewUserService(user repositories.Repositories) *UserService {
 	return &UserService{user: user}
 }
 
-func (s *UserService) AuthorizeAdmin(ctx context.Context, telegramID int64) (*models.User, error) {
-	user, err := s.user.GetUserByTelegramID(ctx, telegramID)
+func (s *UserService) AuthorizeAdmin(telegramID int64) (*models.User, error) {
+	user, err := s.user.GetUserByTelegramID(telegramID)
 	if err != nil {
 		return nil, fmt.Errorf("у вас нет доступа к боту")
 	}

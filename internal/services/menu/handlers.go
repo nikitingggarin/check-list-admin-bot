@@ -1,7 +1,6 @@
 package menu
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"telegram-bot/internal/state_manager/state"
@@ -30,8 +29,7 @@ func (r *MenuService) HandleCreateBlocksChecklist(userID int64, update tgbotapi.
 // HandleMyChecklists обрабатывает просмотр моих чек-листов
 func (r *MenuService) HandleMyChecklists(userID int64, update tgbotapi.Update, userState *state.UserState) {
 	// Получаем черновики пользователя
-	ctx := context.Background()
-	drafts, err := r.checklistSvc.GetUserDrafts(ctx, userID)
+	drafts, err := r.checklistSvc.GetUserDrafts(userID)
 	if err != nil {
 		message := fmt.Sprintf("❌ Ошибка при получении чек-листов: %s", err.Error())
 		r.screenSvc.SendMessage(update.Message.Chat.ID, message)

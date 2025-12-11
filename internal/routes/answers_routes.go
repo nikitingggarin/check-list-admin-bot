@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"log"
 
 	"telegram-bot/internal/buttons"
@@ -24,7 +23,7 @@ func NewAnswersRoutes(answersSvc *answers.AnswersService, screenSvc *screen.Scre
 	}
 }
 
-func (r *AnswersRoutes) Route(ctx context.Context, userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
+func (r *AnswersRoutes) Route(userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
 	log.Printf("[AnswersRoutes] 👤 UserID: %d | 💬 Текст: %s | Экран: %s", userID, text, userState.GetCurrentScreen())
 
 	switch text {

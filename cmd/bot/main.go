@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"telegram-bot/config"
 	"telegram-bot/internal/handlers"
@@ -29,13 +31,29 @@ import (
 )
 
 func main() {
-	// Загрузка конфигурации
+	// 1. Graceful shutdown
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		sig := <-sigChan
+		log.Printf("🛑 Получен сигнал %v, завершаю работу...", sig)
+		cancel()
+		time.Sleep(2 * time.Second)
+		log.Println("👋 Бот остановлен")
+		os.Exit(0)
+	}()
+
+	// 2. Загрузка конфигурации
 	cfg, err := config.LoadFromEnv()
 	if err != nil {
 		log.Fatal("Failed to load config:", err)
 	}
 
-	// Инициализация бота
+	// 3. Инициализация бота
 	bot, err := tgbotapi.NewBotAPI(cfg.Telegram.Token)
 	if err != nil {
 		log.Fatal("Failed to create bot:", err)
@@ -45,16 +63,16 @@ func main() {
 	log.Printf("🤖 %s ЗАПУЩЕН", bot.Self.UserName)
 	log.Println("==========================================")
 
-	// Инициализация StateManager
+	// 4. Инициализация StateManager
 	stateMgr := manager.NewMemoryStateManager()
 
-	// Инициализация базы данных
+	// 5. Инициализация базы данных
 	dbClient, err := infrastructure.NewDatabaseClient(cfg.Database.URL, cfg.Database.Key)
 	if err != nil {
 		log.Fatal("Failed to create database client:", err)
 	}
 
-	// Инициализация репозиториев
+	// 6. Инициализация репозиториев
 	supabaseAdapter := repositories.NewSupabaseAdapter(dbClient.Client())
 	userSvc := service.NewUserService(supabaseAdapter)
 
@@ -65,14 +83,14 @@ func main() {
 	answerOptionRepo := repositories.NewAnswerOptionRepository(dbClient.Client())
 	templateRepo := repositories.NewChecklistTemplateRepository(dbClient.Client())
 
-	// Инициализация сервиса чек-листов (передаем supabaseAdapter как userRepo)
+	// Инициализация сервиса чек-листов
 	checklistSvc := service.NewChecklistService(
 		checklistRepo,
 		questionBlockRepo,
 		questionRepo,
 		answerOptionRepo,
 		templateRepo,
-		supabaseAdapter, // передаем userRepo
+		supabaseAdapter,
 	)
 
 	// Инициализация сервисов работы с бизнес логикой
@@ -85,7 +103,7 @@ func main() {
 	// Создаем PublishedChecklistsService
 	publishedChecklistsSvc := published_checklists.NewPublishedChecklistsService(stateMgr, screenSvc, checklistSvc)
 
-	// Создаем MenuService с publishedChecklistsSvc
+	// Создаем MenuService
 	menuSvc := menu.NewMenuService(stateMgr, screenSvc, checklistSvc, publishedChecklistsSvc)
 
 	// Инициализация сервисов для вопросов и ответов
@@ -93,7 +111,7 @@ func main() {
 	answersSvc := answers.NewAnswersService(stateMgr, screenSvc, questionSvc)
 	questionEditSvc := question_edit.NewQuestionEditService(stateMgr, screenSvc, questionSvc, answersSvc)
 
-	// Инициализация сервисов для чек-листов (передаем checklistSvc)
+	// Инициализация сервисов для чек-листов
 	simpleChecklistSvc := simple_checklist.NewSimpleChecklistService(stateMgr, screenSvc, questionEditSvc, checklistSvc)
 	blockChecklistSvc := block_checklist.NewBlockChecklistService(stateMgr, screenSvc, checklistSvc)
 
@@ -129,25 +147,19 @@ func main() {
 	// Настройка получения обновлений
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
-
 	updates := bot.GetUpdatesChan(u)
-
-	// Обработка сигналов для graceful shutdown
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	log.Println("🚀 Бот запущен и ожидает сообщений...")
 	log.Println("==========================================")
 
-	// Бесконечный цикл обработки обновлений
+	// Главный цикл с graceful shutdown
 	for {
 		select {
 		case update := <-updates:
-			// Передаем обновление в обработчик
 			go updateHandler.HandleUpdate(update)
 
-		case <-sigChan:
-			// Останавливаем очистку состояний
+		case <-ctx.Done():
+			log.Println("🛑 Останавливаю получение новых сообщений...")
 			return
 		}
 	}

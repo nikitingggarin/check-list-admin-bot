@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"context"
 	"fmt"
 	"strings"
 	"telegram-bot/internal/storage/models"
@@ -20,7 +19,7 @@ func NewAnswerOptionRepository(client *supabase.Client) *AnswerOptionRepository 
 }
 
 // Create создает новый вариант ответа
-func (r *AnswerOptionRepository) Create(ctx context.Context, option *models.AnswerOption) (*models.AnswerOption, error) {
+func (r *AnswerOptionRepository) Create(option *models.AnswerOption) (*models.AnswerOption, error) {
 	var result []models.AnswerOption
 
 	err := r.client.DB.From("answer_options").
@@ -39,7 +38,7 @@ func (r *AnswerOptionRepository) Create(ctx context.Context, option *models.Answ
 }
 
 // CreateBatch создает несколько вариантов ответов
-func (r *AnswerOptionRepository) CreateBatch(ctx context.Context, options []models.AnswerOption) ([]models.AnswerOption, error) {
+func (r *AnswerOptionRepository) CreateBatch(options []models.AnswerOption) ([]models.AnswerOption, error) {
 	var result []models.AnswerOption
 
 	if len(options) == 0 {
@@ -58,7 +57,7 @@ func (r *AnswerOptionRepository) CreateBatch(ctx context.Context, options []mode
 }
 
 // GetByQuestionID возвращает варианты ответов по ID вопроса
-func (r *AnswerOptionRepository) GetByQuestionID(ctx context.Context, questionID int64) ([]models.AnswerOption, error) {
+func (r *AnswerOptionRepository) GetByQuestionID(questionID int64) ([]models.AnswerOption, error) {
 	var options []models.AnswerOption
 
 	err := r.client.DB.From("answer_options").
@@ -74,7 +73,7 @@ func (r *AnswerOptionRepository) GetByQuestionID(ctx context.Context, questionID
 }
 
 // GetByQuestionIDs возвращает варианты ответов для нескольких вопросов
-func (r *AnswerOptionRepository) GetByQuestionIDs(ctx context.Context, questionIDs []int64) ([]models.AnswerOption, error) {
+func (r *AnswerOptionRepository) GetByQuestionIDs(questionIDs []int64) ([]models.AnswerOption, error) {
 	var options []models.AnswerOption
 
 	if len(questionIDs) == 0 {

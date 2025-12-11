@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"context"
 	"log"
 
 	"telegram-bot/internal/buttons"
@@ -25,7 +24,7 @@ func NewQuestionEditRoutes(questionEditSvc *question_edit.QuestionEditService, s
 	}
 }
 
-func (r *QuestionEditRoutes) Route(ctx context.Context, userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
+func (r *QuestionEditRoutes) Route(userID int64, update tgbotapi.Update, text string, userState *state.UserState) {
 	log.Printf("[QuestionEditRoutes] 👤 UserID: %d | 💬 Текст: %s | Экран: %s", userID, text, userState.GetCurrentScreen())
 
 	// Проверяем, является ли текст кнопкой с карандашом и номером
