@@ -28,6 +28,25 @@ SUPABASE_KEY=ваш_ключ_supabase
 ### 3. Настройка базы данных
 Выполните SQL скрипт в Supabase SQL Editor:
 
+-- Создание enum типов
+CREATE TYPE public.user_role AS ENUM (
+    'user',
+    'admin'
+);
+
+CREATE TYPE public.checklist_status AS ENUM (
+    'draft',
+    'published',
+    'unpublished'
+);
+
+CREATE TYPE public.question_category AS ENUM (
+    'compliance',
+    'single_choice',
+    'multiple_choice',
+    'text_answer'
+);
+
 -- Пользователи
 CREATE TABLE public.users (
   id bigserial NOT NULL,
